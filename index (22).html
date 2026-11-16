@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CortenCloud — Botlarni cloudga joylashtirish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060a12; --bg2:#0a0f1a;
+  --card:#111827; --card2:#1a2332; --card3:#212c3d;
+  --border:#1e2a3a; --border2:#2a3a52;
+  --text:#f1f5f9; --muted:#94a3b8; --light:#64748b;
+  --primary:#3b82f6; --primary2:#60a5fa; --primary-dim:rgba(59,130,246,.12);
+  --accent:#8b5cf6; --accent2:#a78bfa;
+  --success:#22c55e; --success2:#4ade80;
+  --danger:#ef4444; --danger2:#f87171;
+  --warn:#f59e0b; --warn2:#fbbf24;
+  --radius:16px; --radius-sm:10px;
+  --shadow:0 20px 50px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased}
+.hidden{display:none!important}
+code,.mono{font-family:'JetBrains Mono','SF Mono','Courier New',monospace;background:var(--bg2);padding:2px 7px;border-radius:5px;font-size:.85em;color:var(--primary2)}
+a{color:var(--primary2);text-decoration:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;border-radius:var(--radius-sm);font-weight:600;font-size:.9rem;border:none;cursor:pointer;text-decoration:none;transition:all .15s;font-family:inherit;white-space:nowrap}
+.btn-ghost{background:transparent;color:var(--muted)}.btn-ghost:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border2)}.btn-outline:hover{border-color:var(--primary);background:var(--primary-dim)}
+.btn-primary{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;box-shadow:0 4px 16px rgba(59,130,246,.35)}.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,130,246,.45)}
+.btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#16a34a}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#dc2626}
+.btn-warn{background:var(--warn);color:#1a1a1a}
+.btn-gray{background:#475569;color:#fff}
+.btn-sm{padding:7px 12px;font-size:.8rem;border-radius:8px}
+.btn-lg{padding:14px 28px;font-size:1rem}
+.btn-block{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;margin-bottom:6px;font-size:.85rem;font-weight:500;color:var(--muted)}
+.form-control{width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:1rem;font-family:inherit;transition:border-color .15s}
+.form-control:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.2)}
+textarea.form-control{resize:vertical;min-height:80px}
+select.form-control{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8'%3E%3Cpath d='M6 9L1 4h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+#landing{min-height:100vh;background:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(59,130,246,.18),transparent),radial-gradient(ellipse 40% 40% at 90% 60%,rgba(139,92,246,.1),transparent),var(--bg)}
+.topnav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,10,18,.75);backdrop-filter:blur(16px);border-bottom:1px solid transparent;transition:border-color .2s}
+.topnav.scrolled{border-bottom-color:var(--border)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.25rem;letter-spacing:-.02em;text-decoration:none;color:var(--text)}
+.brand-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.hero{padding:140px 24px 80px;max-width:1100px;margin:0 auto;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--primary-dim);border:1px solid rgba(59,130,246,.25);color:var(--primary2);font-size:.85rem;font-weight:500;margin-bottom:24px}
+.hero h1{font-size:clamp(2.2rem,5.5vw,3.6rem);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:18px}
+.hero h1 span{background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--muted);font-size:1.15rem;max-width:540px;margin:0 auto 32px;line-height:1.65}
+.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.hero-cta .btn{padding:14px 28px;font-size:1rem}
+.features{max-width:1100px;margin:0 auto;padding:0 24px 100px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.feature{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;transition:border-color .2s,transform .2s}
+.feature:hover{border-color:rgba(59,130,246,.4);transform:translateY(-3px)}
+.feature-icon{width:48px;height:48px;border-radius:12px;background:var(--primary-dim);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px}
+.feature h3{font-size:1.1rem;margin-bottom:8px}
+.feature p{color:var(--muted);font-size:.9rem}
+.pricing{max-width:1100px;margin:0 auto;padding:0 24px 100px}
+.section-title{text-align:center;margin-bottom:36px}
+.section-title h2{font-size:1.8rem;font-weight:700;margin-bottom:8px}
+.section-title p{color:var(--muted)}
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;text-align:center;position:relative;overflow:hidden}
+.price-card.popular{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary),0 20px 40px rgba(59,130,246,.15)}
+.price-card.popular::before{content:'Mashhur';position:absolute;top:14px;right:-28px;background:var(--primary);color:#fff;font-size:.7rem;font-weight:700;padding:4px 36px;transform:rotate(45deg)}
+.price-card .amount{font-size:2.2rem;font-weight:800;color:var(--primary2);margin:12px 0 4px}
+.price-card .unit{color:var(--muted);font-size:.9rem;margin-bottom:20px}
+.price-card ul{list-style:none;text-align:left;margin-bottom:24px}
+.price-card li{padding:6px 0;font-size:.9rem;color:var(--muted);display:flex;gap:8px;align-items:center}
+.price-card li::before{content:'\2713';color:var(--success);font-weight:700}
+.footer-land{text-align:center;padding:40px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:.85rem}
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px 32px;width:100%;max-width:400px;box-shadow:var(--shadow);transform:translateY(12px);transition:transform .2s;position:relative}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal h2{font-size:1.45rem;margin-bottom:6px;text-align:center}
+.modal .sub{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:24px}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;line-height:1}
+.modal-close:hover{color:var(--text)}
+.form-error{color:var(--danger);font-size:.85rem;text-align:center;min-height:20px;margin-top:10px}
+.form-switch{text-align:center;margin-top:18px;font-size:.9rem;color:var(--muted)}
+.form-switch a{color:var(--primary2);cursor:pointer;font-weight:600}.form-switch a:hover{text-decoration:underline}
+.modal-overlay.lg .modal{max-width:560px;padding:0;overflow:hidden}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-head h2{font-size:1.15rem;margin:0;text-align:left}
+.modal-body{padding:24px;max-height:70vh;overflow-y:auto}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+#app{display:none;min-height:100vh;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(59,130,246,.1),transparent),var(--bg)}
+.app-nav{position:sticky;top:0;z-index:50;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,10,18,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.app-nav-left{display:flex;align-items:center;gap:12px}
+.menu-toggle{display:none;background:transparent;border:none;color:var(--text);font-size:1.3rem;cursor:pointer;padding:4px 8px;border-radius:8px}
+.menu-toggle:hover{background:rgba(255,255,255,.06)}
+.user-chip{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:6px 14px 6px 6px}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0}
+.user-chip .name{font-size:.9rem;font-weight:600}
+.user-chip .bal{font-size:.75rem;color:var(--muted)}
+.app-nav-right{display:flex;align-items:center;gap:12px}
+.balance-pill{background:var(--primary-dim);color:var(--primary2);padding:7px 14px;border-radius:999px;font-weight:700;font-size:.85rem;border:1px solid rgba(59,130,246,.25)}
+.app-layout{display:flex;min-height:calc(100vh - 60px)}
+.sidebar{width:240px;background:var(--card);border-right:1px solid var(--border);padding:16px 12px;flex-shrink:0;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
+.sidebar .nav-section{font-size:.7rem;text-transform:uppercase;color:var(--light);margin:18px 8px 8px;letter-spacing:.6px;font-weight:700}
+.sidebar .nav-section:first-child{margin-top:4px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;color:var(--muted);font-size:.9rem;font-weight:500;margin-bottom:2px;transition:.12s}
+.nav-item:hover{background:var(--card2);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;box-shadow:0 4px 12px rgba(59,130,246,.25)}
+.nav-item .ic{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.nav-item .badge-count{margin-left:auto;background:var(--danger);color:#fff;border-radius:10px;padding:1px 8px;font-size:.7rem;font-weight:700}
+.nav-item.active .badge-count{background:rgba(255,255,255,.25)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49}
+.sidebar-overlay.show{display:block}
+.app-main{flex:1;padding:28px 28px 60px;min-width:0;max-width:1000px;margin:0 auto;width:100%}
+.page{display:none}
+.page.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-head{margin-bottom:24px}
+.page-title{font-size:1.5rem;font-weight:700;margin-bottom:4px}
+.page-sub{color:var(--muted);font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.card h2{font-size:1.15rem;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card h2 .ic{font-size:1.2rem}
+.card h3{font-size:1rem;margin-bottom:12px;color:var(--text)}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.9rem;cursor:pointer;margin-bottom:16px;font-weight:500;background:none;border:none;font-family:inherit}
+.back:hover{color:var(--text)}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+.stat-card .stat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:12px}
+.stat-card .label{color:var(--muted);font-size:.78rem;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.stat-card .value{font-size:1.5rem;font-weight:700}
+.stat-card .sub{font-size:.75rem;color:var(--light);margin-top:4px}
+.stat-card.blue .stat-icon{background:var(--primary-dim);color:var(--primary2)}.stat-card.blue .value{color:var(--primary2)}
+.stat-card.green .stat-icon{background:rgba(34,197,94,.12);color:var(--success2)}.stat-card.green .value{color:var(--success2)}
+.stat-card.purple .stat-icon{background:rgba(139,92,246,.12);color:var(--accent2)}.stat-card.purple .value{color:var(--accent2)}
+.stat-card.orange .stat-icon{background:rgba(245,158,11,.12);color:var(--warn2)}.stat-card.orange .value{color:var(--warn2)}
+.stat-card.red .stat-icon{background:rgba(239,68,68,.12);color:var(--danger2)}.stat-card.red .value{color:var(--danger2)}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
+.menu-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 16px;text-align:center;cursor:pointer;transition:all .15s}
+.menu-card:hover{border-color:var(--primary);background:var(--card2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.menu-card .ic{font-size:1.8rem;margin-bottom:10px}
+.menu-card .lb{font-weight:600;font-size:.9rem}
+.menu-card .ds{font-size:.75rem;color:var(--muted);margin-top:4px}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-sm)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{padding:12px 12px;text-align:left;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;font-weight:600;background:var(--bg2);white-space:nowrap}
+tbody tr:hover td{background:var(--card2)}
+tbody tr:last-child td{border-bottom:none}
+td.clickable{cursor:pointer}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:600;white-space:nowrap}
+.badge-active{background:rgba(34,197,94,.15);color:#4ade80}
+.badge-pending{background:rgba(245,158,11,.15);color:#fbbf24}
+.badge-stopped{background:rgba(148,163,184,.15);color:#94a3b8}
+.badge-expired{background:rgba(239,68,68,.15);color:#f87171}
+.badge-admin{background:rgba(139,92,246,.15);color:#a78bfa}
+.badge-user{background:var(--primary-dim);color:#60a5fa}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.flash{padding:12px 14px;border-radius:var(--radius-sm);margin-top:12px;font-size:.88rem;display:flex;gap:8px;align-items:flex-start}
+.flash-ok{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.flash-err{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+.alert{padding:14px 16px;border-radius:var(--radius-sm);font-size:.88rem;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start;border:1px solid;line-height:1.5}
+.alert-info{background:var(--primary-dim);color:#93c5fd;border-color:rgba(59,130,246,.3)}
+.alert-warn{background:rgba(245,158,11,.1);color:#fbbf24;border-color:rgba(245,158,11,.3)}
+.alert .ai{font-size:1rem;flex-shrink:0;line-height:1.4}
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty .ic{font-size:2.5rem;margin-bottom:12px;opacity:.6}
+.empty p{font-size:.92rem}
+.empty .muted{font-size:.82rem;margin-top:6px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+.flex{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.flex-between{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:.85rem}
+.row-actions{display:flex;gap:6px}
+.info-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:.88rem;gap:12px}
+.info-row:last-child{border-bottom:none}
+.info-row .k{color:var(--muted)}
+.info-row .v{font-weight:600;text-align:right;word-break:break-all}
+.summary-box{background:var(--bg2);border-radius:var(--radius-sm);padding:16px;font-size:.9rem}
+.summary-box .srow{display:flex;justify-content:space-between;padding:6px 0}
+.summary-box .srow.total{border-top:1px solid var(--border);margin-top:6px;padding-top:12px;font-weight:700;font-size:1rem}
+.search-box{position:relative;flex:1;max-width:340px}
+.search-box input{padding-left:38px}
+.search-box .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--light);font-size:.95rem}
+.filter-chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:6px 14px;border-radius:999px;border:1px solid var(--border2);background:var(--card);cursor:pointer;font-size:.78rem;font-weight:600;color:var(--muted);transition:.15s;user-select:none}
+.chip:hover{border-color:var(--primary);color:var(--primary2)}
+.chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tariff-pick{padding:16px;border:2px solid var(--border);border-radius:var(--radius-sm);margin-bottom:10px;cursor:pointer;transition:.15s;display:flex;justify-content:space-between;align-items:center}
+.tariff-pick:hover{border-color:var(--primary);background:rgba(59,130,246,.06)}
+.tariff-pick.selected{border-color:var(--primary);background:var(--primary-dim)}
+.tariff-pick .nm{font-weight:700;font-size:.95rem}
+.tariff-pick .ds{color:var(--muted);font-size:.78rem;margin-top:3px}
+.tariff-pick .pr{color:var(--success2);font-weight:800;font-size:1.1rem}
+#toast{position:fixed;bottom:24px;right:24px;background:var(--card2);color:var(--text);padding:13px 20px;border-radius:12px;z-index:300;opacity:0;transform:translateY(10px);transition:.25s;max-width:360px;font-size:.88rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.4);border:1px solid var(--border2);pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.ok{border-color:rgba(34,197,94,.4)}
+#toast.err{border-color:rgba(239,68,68,.4)}
+@media(max-width:900px){
+  .topnav{padding:12px 16px}
+  .hero{padding:120px 16px 60px}
+  .app-nav{padding:12px 16px}
+  .sidebar{position:fixed;left:0;top:60px;bottom:0;z-index:60;transform:translateX(-100%);transition:.25s;height:auto}
+  .sidebar.open{transform:translateX(0)}
+  .menu-toggle{display:block}
+  .app-main{padding:20px 16px 40px}
+  .user-chip .name,.user-chip .bal{display:none}
+  .user-chip{padding:5px}
+  .balance-pill{font-size:.78rem;padding:6px 12px}
+  .modal{padding:28px 20px}
+}
+@media(max-width:560px){
+  .stat-row{grid-template-columns:repeat(2,1fr)}
+  .menu-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div id="landing">
+  <nav class="topnav" id="topnav">
+    <a href="#" class="brand" onclick="return false"><div class="brand-icon">☁</div>CortenCloud</a>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn btn-ghost" onclick="openModal('login')">Log in</button>
+      <button class="btn btn-primary" onclick="openModal('register')">Sign up</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-badge">Telegram botlaringiz uchun cloud hosting</div>
+    <h1>Botlaringizni <span>cloudga</span><br>tez va oson joylashtiring</h1>
+    <p>Oylik, yillik yoki kunlik tarif. Balans orqali to'lov. Bir necha daqiqada botingiz ishga tushadi. <b>1 tarif = 1 bot.</b></p>
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="openModal('register')">Boshlash — bepul ro'yxat</button>
+      <button class="btn btn-outline" onclick="openModal('login')">Hisobim bor</button>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="feature"><div class="feature-icon">🚀</div><h3>Tez joylash</h3><p>Faylni yuklang — admin tasdiqlagach ishga tushadi. .py, .zip, .rar qabul qilinadi.</p></div>
+    <div class="feature"><div class="feature-icon">💳</div><h3>Qulay to'lov</h3><p>Balansni karta orqali to'ldiring. Admin yaratgan tariflardan birini tanlang.</p></div>
+    <div class="feature"><div class="feature-icon">🎟</div><h3>Promokodlar</h3><p>Chegirma kodlari bilan yanada arzonroq joylashtiring.</p></div>
+    <div class="feature"><div class="feature-icon">🛡</div><h3>Xavfsiz</h3><p>Har bir mijozga alohida ID. Admin panel orqali to'liq nazorat.</p></div>
+  </section>
+
+  <section class="pricing">
+    <div class="section-title"><h2>Tariflar</h2><p>Admin tomonidan boshqariladi — o'zingizga mos muddatni tanlang</p></div>
+    <div class="price-grid" id="landing-prices"></div>
+  </section>
+
+  <div class="footer-land">© 2026 CortenCloud · Botlarni cloudga joylashtirish xizmati</div>
+</div>
+
+<div class="modal-overlay" id="modal-login">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModals()">×</button>
+    <h2>Xush kelibsiz</h2>
+    <p class="sub">Hisobingizga kiring</p>
+    <div class="form-group"><label>Nick</label><input class="form-control" id="login-nick" placeholder="nick" autocomplete="username"></div>
+    <div class="form-group"><label>Parol</label><input class="form-control" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="btn btn-primary btn-block" onclick="doLogin()">Kirish</button>
+    <div class="form-error" id="login-err"></div>
+    <p class="form-switch">Hisobingiz yo'qmi? <a onclick="switchModal('register')">Ro'yxatdan o'ting</a></p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-register">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModals()">×</button>
+    <h2>Ro'yxatdan o'tish</h2>
+    <p class="sub">Bir daqiqada hisob yarating</p>
+    <div class="form-group"><label>Nick</label><input class="form-control" id="reg-nick" placeholder="masalan: ali_dev" autocomplete="username"></div>
+    <div class="form-group"><label>Email</label><input class="form-control" type="email" id="reg-email" placeholder="ali@example.com" autocomplete="email"></div>
+    <div class="form-group"><label>Parol</label><input class="form-control" type="password" id="reg-pass" placeholder="kamida 6 belgi" autocomplete="new-password"></div>
+    <div class="form-group"><label>Parolni tasdiqlang</label><input class="form-control" type="password" id="reg-pass2" placeholder="qayta kiriting" autocomplete="new-password"></div>
+    <button class="btn btn-primary btn-block" onclick="doRegister()">Ro'yxatdan o'tish</button>
+    <div class="form-error" id="reg-err"></div>
+    <p class="form-switch">Allaqachon hisobingiz bormi? <a onclick="switchModal('login')">Kirish</a></p>
+  </div>
+</div>
+
+<div id="app">
+  <nav class="app-nav">
+    <div class="app-nav-left">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <a href="#" class="brand" onclick="showPage('dash');return false"><div class="brand-icon">☁</div>CortenCloud</a>
+    </div>
+    <div class="app-nav-right">
+      <span class="balance-pill" id="nav-bal-pill">💰 0 so'm</span>
+      <div class="user-chip">
+        <div class="avatar" id="nav-avatar">A</div>
+        <div><div class="name" id="nav-name">—</div><div class="bal" id="nav-bal">0 so'm</div></div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="doLogout()">Chiqish</button>
+    </div>
+  </nav>
+
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+    <main class="app-main">
+
+      <div id="page-dash" class="page active">
+        <div class="page-head"><div class="page-title" id="welcome-text">Salom! 👋</div><div class="page-sub">Mijoz ID: <code id="welcome-id">—</code></div></div>
+        <div class="stat-row" id="dash-stats"></div>
+        <div class="card"><h2><span class="ic">⚡</span> Tezkor amallar</h2><div class="menu-grid" id="main-menu"></div></div>
+        <div class="card"><h2><span class="ic">📂</span> So'nggi botlarim</h2><div id="dash-bots"></div></div>
+      </div>
+
+      <div id="page-bots" class="page">
+        <div class="page-head"><div class="page-title">📂 Botlarim</div><div class="page-sub">Har bir bot uchun alohida tarif sotib olingan.</div></div>
+        <div class="alert alert-info"><span class="ai">ℹ️</span><div><b>1 tarif = 1 bot.</b> Har bir bot alohida tarif sotib olib yaratiladi. Yangi bot ochish uchun "Bot joylash" sahifasida yana bir tarif sotib oling.</div></div>
+        <div class="card"><div id="bots-box"></div></div>
+      </div>
+
+      <div id="page-upload" class="page">
+        <div class="page-head"><div class="page-title">🚀 Bot joylash</div><div class="page-sub">1 ta tarif sotib olib — 1 ta bot yaratasiz.</div></div>
+        <div class="alert alert-warn"><span class="ai">⚠️</span><div><b>Qoida: 1 tarif = 1 bot.</b> Quyida admin yaratgan tariflardan birini tanlang. Sotib olingan tarif faqat bitta bot uchun. Yangi bot uchun yana alohida tarif sotib olishingiz kerak.</div></div>
+        <div class="card"><h2><span class="ic">📦</span> Tarifni tanlang</h2><div id="upload-tariffs">Yuklanmoqda...</div></div>
+        <div class="card" id="upload-form-card" style="display:none">
+          <h2><span class="ic">📝</span> Bot ma'lumotlari</h2>
+          <div class="form-group"><label>Bot fayl nomi (.py / .zip / .rar)</label><input class="form-control" id="up-file" placeholder="mening_bot.py"></div>
+          <div class="form-group"><label>Promokod (ixtiyoriy)</label><input class="form-control" id="up-promo" placeholder="YANGI20"></div>
+          <div class="summary-box" id="up-summary"></div>
+          <div style="margin-top:16px"><button class="btn btn-primary btn-lg" onclick="doUpload()">✓ Tasdiqlash va to'lov</button></div>
+          <div id="up-msg"></div>
+        </div>
+      </div>
+
+      <div id="page-balance" class="page">
+        <div class="page-head"><div class="page-title">💰 Balans</div><div class="page-sub">Balansingizni karta orqali to'ldiring.</div></div>
+        <div class="card">
+          <h2><span class="ic">💰</span> Joriy balans</h2>
+          <p style="font-size:2rem;font-weight:800;color:var(--primary2);margin-bottom:8px" id="bal-val">0 so'm</p>
+          <p class="muted" style="margin-bottom:20px">To'lov karta orqali — admin ko'rsatgan kartaga o'tkazib, so'rov yuboring.</p>
+          <h2><span class="ic">💳</span> To'ldirish</h2>
+          <p class="muted" style="margin-bottom:12px">Karta: <code id="card-show">—</code></p>
+          <div class="form-group"><label>Summa (min 5 000 so'm)</label><input class="form-control" type="number" id="topup-amt" placeholder="50000" min="5000"></div>
+          <button class="btn btn-primary" onclick="doTopup()">To'ldirish</button>
+          <div id="topup-msg"></div>
+          <div class="divider"></div>
+          <h3>To'lovlar tarixi</h3>
+          <div id="topup-history"></div>
+        </div>
+      </div>
+
+      <div id="page-profile" class="page">
+        <div class="page-head"><div class="page-title">👤 Profil</div><div class="page-sub">Shaxsiy ma'lumotlaringiz.</div></div>
+        <div class="card">
+          <div class="flex" style="gap:16px;margin-bottom:16px"><div class="avatar" style="width:56px;height:56px;font-size:1.4rem" id="pf-avatar">A</div><div><h2 style="margin:0" id="pf-nick-h"></h2><div id="pf-role-badge"></div></div></div>
+          <div class="info-row"><span class="k">Nick</span><span class="v" id="pf-nick"></span></div>
+          <div class="info-row"><span class="k">Email</span><span class="v" id="pf-email"></span></div>
+          <div class="info-row"><span class="k">Mijoz ID</span><span class="v"><code id="pf-id"></code></span></div>
+          <div class="info-row"><span class="k">Balans</span><span class="v" style="color:var(--success2)" id="pf-bal"></span></div>
+          <div class="info-row"><span class="k">Botlar soni</span><span class="v" id="pf-bots"></span></div>
+          <div class="info-row"><span class="k">A'zo bo'lgan</span><span class="v" id="pf-joined"></span></div>
+        </div>
+      </div>
+
+      <div id="page-contact" class="page">
+        <div class="page-head"><div class="page-title">🆘 Admin bilan aloqa</div><div class="page-sub">Savol yoki muammo bo'lsa — yozing.</div></div>
+        <div class="card">
+          <h2><span class="ic">💬</span> Xabar yuborish</h2>
+          <div class="form-group"><textarea class="form-control" id="contact-text" rows="4" placeholder="Savolingiz yoki muammoingiz..."></textarea></div>
+          <button class="btn btn-primary" onclick="doContact()">Yuborish</button>
+          <div id="contact-msg"></div>
+          <div class="divider"></div>
+          <h3>Tarix</h3>
+          <div id="contact-hist"></div>
+        </div>
+      </div>
+
+      <div id="page-admin-stats" class="page">
+        <div class="page-head"><div class="page-title">📈 Statistika</div><div class="page-sub">Platforma umumiy ko'rinishi.</div></div>
+        <div class="stat-row" id="admin-stats"></div>
+        <div class="card"><h2><span class="ic">⏳</span> Kutilayotgan botlar</h2><div id="admin-pending"></div></div>
+      </div>
+
+      <div id="page-admin-customers" class="page">
+        <div class="page-head"><div class="page-title">👥 Mijozlar</div><div class="page-sub">Barcha ro'yxatdan o'tgan mijozlar ro'yxati.</div></div>
+        <div class="card">
+          <div class="flex-between" style="margin-bottom:14px"><div class="search-box"><span class="si">🔍</span><input id="cust-search" placeholder="Nick bo'yicha qidirish..." oninput="renderCustomers()"></div><div class="muted" id="cust-count"></div></div>
+          <div class="filter-chips" id="cust-chips" style="margin-bottom:14px">
+            <span class="chip active" data-f="all" onclick="setCustFilter('all')">Barchasi</span>
+            <span class="chip" data-f="withbots" onclick="setCustFilter('withbots')">Botlari bor</span>
+            <span class="chip" data-f="nobots" onclick="setCustFilter('nobots')">Botsiz</span>
+            <span class="chip" data-f="active" onclick="setCustFilter('active')">Faol boti bor</span>
+          </div>
+          <div id="cust-list"></div>
+        </div>
+      </div>
+
+      <div id="page-admin-bots" class="page">
+        <div class="page-head"><div class="page-title">🤖 Barcha botlar</div><div class="page-sub">Platformadagi barcha mijoz botlari.</div></div>
+        <div class="card"><div id="admin-bots-box"></div></div>
+      </div>
+
+      <div id="page-admin-tariffs" class="page">
+        <div class="page-head"><div class="page-title">📦 Tariflar</div><div class="page-sub">Tariflarni boshqaring. <b>Admin tarif yaratmasa, mijozlarga hech qanday tarif ko'rinmaydi.</b></div></div>
+        <div class="alert alert-info"><span class="ai">ℹ️</span><div>Mijozlar faqat shu yerda yaratilgan <b>faol</b> tariflarni ko'radi va bot yaratishda tanlay oladi. Tarif yaratilmasa, mijozlar "Tariflar mavjud emas" xabarini ko'radi va bot yarata olmaydi.</div></div>
+        <div class="flex" style="gap:16px;align-items:flex-start">
+          <div class="card" style="flex:1;min-width:280px">
+            <h2><span class="ic">➕</span> Yangi tarif</h2>
+            <div class="form-group"><label>Nomi</label><input class="form-control" id="tar-name" placeholder="Oylik"></div>
+            <div class="form-group"><label>Narxi (so'm)</label><input class="form-control" type="number" id="tar-price" placeholder="4900"></div>
+            <div class="form-group"><label>Muddat (kun)</label><input class="form-control" type="number" id="tar-days" placeholder="30"></div>
+            <button class="btn btn-success btn-block" onclick="addTariff()">Tarifni qo'shish</button>
+            <div id="tar-msg"></div>
+          </div>
+          <div class="card" style="flex:1.4;min-width:300px"><h2><span class="ic">📋</span> Mavjud tariflar</h2><div id="tar-list"></div></div>
+        </div>
+      </div>
+
+      <div id="page-admin-settings" class="page">
+        <div class="page-head"><div class="page-title">⚙️ Sozlamalar</div><div class="page-sub">To'lov kartasi va tizim sozlamalari.</div></div>
+        <div class="card">
+          <h2><span class="ic">💳</span> To'lov kartasi</h2>
+          <p class="muted" style="margin-bottom:12px">Bu karta mijozlarga balans to'ldirish uchun ko'rsatiladi.</p>
+          <div class="form-group"><label>Karta raqami</label><input class="form-control" id="ad-card" placeholder="8600 1234 5678 9012"></div>
+          <button class="btn btn-primary btn-sm" onclick="saveCard()">Saqlash</button>
+          <div id="ad-msg"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="modal-overlay lg" id="modal-generic">
+  <div class="modal" id="modal-generic-inner"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============== STATE ==============
+function load(){ try{ return JSON.parse(localStorage.getItem('cc_v2')||'{}'); }catch{ return {}; } }
+function save(){ localStorage.setItem('cc_v2', JSON.stringify(state)); }
+let state = load();
+
+function ensureAdmin(){
+  if(!state.users) state.users = {};
+  if(!state.users['admin']){
+    state.users['admin'] = { nick:'admin', email:'admin@cortencloud.uz', pass:'BILOLIDDIN', isAdmin:true, balance:0, clientId:10000001, bots:[], messages:[], joined:new Date().toISOString() };
+  }
+  if(!state.earned) state.earned = 0;
+  if(!state.card) state.card = '8600 1234 5678 9012';
+  if(!state.tariffs){
+    state.tariffs = [
+      { id: 1001, name:'Kunlik',  price:400,   days:1,   active:true },
+      { id: 1002, name:'Oylik',   price:4900,  days:30,  active:true },
+      { id: 1003, name:'Yilliq',  price:64000, days:365, active:true },
+    ];
+  }
+  Object.values(state.users).forEach(u=>{
+    (u.bots||[]).forEach(b=>{ if(!b.tariffName && b.plan){ b.tariffName = ({monthly:'Oylik',yearly:'Yillik',daily:'Kunlik'})[b.plan] || b.plan; } });
+    if(!u.joined) u.joined = new Date().toISOString();
+    if(!u.topups) u.topups = [];
+  });
+  save();
+}
+ensureAdmin();
+
+function user(){ return state.current && state.users ? state.users[state.current] : null; }
+function activeTariffs(){ return (state.tariffs||[]).filter(t=>t.active); }
+function esc(s){ const d=document.createElement('div'); d.textContent = s==null?'':String(s); return d.innerHTML; }
+function money(n){ return Number(n||0).toLocaleString('uz-UZ') + " so'm"; }
+function dateShort(s){ return s ? new Date(s).toLocaleDateString('uz-UZ') : '—'; }
+function dateFull(s){ return s ? new Date(s).toLocaleString('uz-UZ',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'; }
+function initial(n){ return (n||'?').charAt(0).toUpperCase(); }
+function toast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+(type||'');
+  clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'),3200);
+}
+function flash(elId, msg, type){
+  const el=document.getElementById(elId); if(!el) return;
+  el.innerHTML = '<div class="flash flash-'+(type==='ok'?'ok':'err')+'">'+esc(msg)+'</div>';
+}
+
+// ============== LANDING PRICES ==============
+function renderLandingPrices(){
+  const box = document.getElementById('landing-prices');
+  if(!box) return;
+  const t = activeTariffs();
+  if(t.length===0){
+    box.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="ic">📦</div><p>Hozircha tariflar mavjud emas.</p><p class="muted">Admin tez orada tariflarni qo\'shadi.</p></div>';
+    return;
+  }
+  box.innerHTML = t.map((p,i)=>{
+    const popular = (i===Math.floor(t.length/2)) ? 'popular' : '';
+    return '<div class="price-card '+popular+'"><h3>'+esc(p.name)+'</h3><div class="amount">'+p.price.toLocaleString()+'</div><div class="unit">so\'m / '+p.days+' kun</div><ul><li>'+p.days+' kunlik hosting</li><li>1 tarif = 1 bot</li><li>To\'liq qo\'llab-quvvatlash</li></ul><button class="btn '+(popular?'btn-primary':'btn-outline')+' btn-block" onclick="openModal(\'register\')">Tanlash</button></div>';
+  }).join('');
+}
+renderLandingPrices();
+
+// ============== AUTH MODALS ==============
+function openModal(name){
+  closeModals();
+  document.getElementById('modal-'+name).classList.add('open');
+  if(name==='login') setTimeout(()=>document.getElementById('login-nick').focus(),100);
+  if(name==='register') setTimeout(()=>document.getElementById('reg-nick').focus(),100);
+}
+function closeModals(){
+  document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'));
+  const le=document.getElementById('login-err'); if(le) le.textContent='';
+  const re=document.getElementById('reg-err'); if(re) re.textContent='';
+}
+function switchModal(name){ closeModals(); openModal(name); }
+document.querySelectorAll('.modal-overlay').forEach(ov=> ov.addEventListener('click', e=>{ if(e.target===ov && ov.id!=='modal-generic') closeModals(); }));
+
+function doRegister(){
+  const nick=document.getElementById('reg-nick').value.trim();
+  const email=document.getElementById('reg-email').value.trim().toLowerCase();
+  const pass=document.getElementById('reg-pass').value;
+  const pass2=document.getElementById('reg-pass2').value;
+  const err=document.getElementById('reg-err'); err.textContent='';
+  if(!nick||nick.length<3){ err.textContent='Nick kamida 3 belgi'; return; }
+  if(!email||!email.includes('@')){ err.textContent='Email noto\'g\'ri'; return; }
+  if(pass.length<6){ err.textContent='Parol kamida 6 belgi'; return; }
+  if(pass!==pass2){ err.textContent='Parollar mos kelmadi'; return; }
+  if(nick.toLowerCase()==='admin'){ err.textContent='Bu nick band'; return; }
+  if(state.users[nick]){ err.textContent='Bu nick band'; return; }
+  if(Object.values(state.users).some(u=>u.email===email)){ err.textContent='Bu email band'; return; }
+  state.users[nick]={ nick, email, pass, isAdmin:false, balance:0, clientId:10000000+Math.floor(Math.random()*89999999), bots:[], messages:[], topups:[], joined:new Date().toISOString() };
+  state.current=nick; save(); closeModals(); enterApp();
+  toast('Xush kelibsiz, '+nick+'! 👋','ok');
+}
+function doLogin(){
+  const nick=document.getElementById('login-nick').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  const err=document.getElementById('login-err'); err.textContent='';
+  if(!nick||!pass){ err.textContent='Nick va parol kiriting'; return; }
+  const u=state.users[nick];
+  if(!u||u.pass!==pass){ err.textContent='Nick yoki parol noto\'g\'ri'; return; }
+  state.current=nick; save(); closeModals(); enterApp();
+}
+function doLogout(){
+  state.current=null; save();
+  document.getElementById('app').style.display='none';
+  document.getElementById('landing').style.display='block';
+  renderLandingPrices();
+}
+
+function enterApp(){
+  document.getElementById('landing').style.display='none';
+  document.getElementById('app').style.display='block';
+  const u=user();
+  document.getElementById('nav-name').textContent=u.nick+(u.isAdmin?' · admin':'');
+  document.getElementById('nav-bal').textContent=money(u.balance);
+  document.getElementById('nav-bal-pill').textContent='💰 '+money(u.balance);
+  document.getElementById('nav-avatar').textContent=initial(u.nick);
+  showPage('dash');
+}
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('show'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('show'); }
+
+// ============== NAV + PAGES ==============
+const USER_PAGES = [
+  { id:'dash',     ic:'📊', lb:'Bosh sahifa' },
+  { id:'bots',     ic:'🤖', lb:'Botlarim' },
+  { id:'upload',   ic:'🚀', lb:'Bot joylash' },
+  { id:'balance',  ic:'💰', lb:'Balans' },
+  { id:'profile',  ic:'👤', lb:'Profil' },
+  { id:'contact',  ic:'💬', lb:'Yordam' },
+];
+const ADMIN_PAGES = [
+  { id:'admin-stats',     ic:'📈', lb:'Statistika' },
+  { id:'admin-customers', ic:'👥', lb:'Mijozlar' },
+  { id:'admin-bots',      ic:'🤖', lb:'Barcha botlar' },
+  { id:'admin-tariffs',   ic:'📦', lb:'Tariflar' },
+  { id:'admin-settings',  ic:'⚙️', lb:'Sozlamalar' },
+];
+function renderSidebar(){
+  const u=user(); if(!u) return;
+  const sb=document.getElementById('sidebar');
+  let html='<div class="nav-section">Mening panelim</div>';
+  html += USER_PAGES.map(p=>'<div class="nav-item" data-page="'+p.id+'" onclick="showPage(\''+p.id+'\')"><span class="ic">'+p.ic+'</span> '+p.lb+'</div>').join('');
+  if(u.isAdmin){
+    const pending = Object.values(state.users).filter(x=>!x.isAdmin).flatMap(x=>x.bots||[]).filter(b=>b.status==='pending').length;
+    html += '<div class="nav-section">Admin panel</div>';
+    html += ADMIN_PAGES.map(p=>{
+      const badge = (p.id==='admin-bots' && pending>0) ? '<span class="badge-count">'+pending+'</span>' : '';
+      return '<div class="nav-item" data-page="'+p.id+'" onclick="showPage(\''+p.id+'\')"><span class="ic">'+p.ic+'</span> '+p.lb+badge+'</div>';
+    }).join('');
+  }
+  sb.innerHTML=html;
+}
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);
+  if(pg) pg.classList.add('active');
+  renderSidebar();
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===name));
+  closeSidebar();
+  const u=user(); if(!u) return;
+  document.getElementById('nav-bal').textContent=money(u.balance);
+  document.getElementById('nav-bal-pill').textContent='💰 '+money(u.balance);
+  if(name==='dash') renderDash();
+  if(name==='bots') renderBots();
+  if(name==='upload') renderUpload();
+  if(name==='balance') renderBalance();
+  if(name==='profile') renderProfile();
+  if(name==='contact') renderContact();
+  if(name==='admin-stats') renderAdminStats();
+  if(name==='admin-customers') renderCustomers();
+  if(name==='admin-bots') renderAdminBots();
+  if(name==='admin-tariffs') renderTariffs();
+  if(name==='admin-settings') renderSettings();
+}
+
+// ============== DASHBOARD ==============
+function isExpired(b){ if(!b.expiresAt) return false; return new Date(b.expiresAt) < new Date(); }
+function botBadge(b){
+  if(isExpired(b)) return '<span class="badge badge-expired"><span class="badge-dot"></span>Muddati o\'tgan</span>';
+  if(b.status==='active') return '<span class="badge badge-active"><span class="badge-dot"></span>Faol</span>';
+  if(b.status==='stopped') return '<span class="badge badge-stopped">To\'xtatilgan</span>';
+  return '<span class="badge badge-pending">Kutilmoqda</span>';
+}
+function renderDash(){
+  const u=user();
+  document.getElementById('welcome-text').textContent='Salom, '+u.nick+'! 👋';
+  document.getElementById('welcome-id').textContent=u.clientId;
+  const active = (u.bots||[]).filter(b=>b.status==='active'&&!isExpired(b)).length;
+  const expired = (u.bots||[]).filter(b=>isExpired(b)).length;
+  document.getElementById('dash-stats').innerHTML =
+    '<div class="stat-card blue"><div class="stat-icon">💰</div><div class="label">Balans</div><div class="value">'+u.balance.toLocaleString()+'</div><div class="sub">so\'m</div></div>'+
+    '<div class="stat-card green"><div class="stat-icon">🤖</div><div class="label">Jami botlar</div><div class="value">'+(u.bots||[]).length+'</div><div class="sub">har biri alohida tarif</div></div>'+
+    '<div class="stat-card purple"><div class="stat-icon">🟢</div><div class="label">Faol botlar</div><div class="value">'+active+'</div><div class="sub">ishlamoqda</div></div>'+
+    '<div class="stat-card orange"><div class="stat-icon">⏰</div><div class="label">Muddati o\'tgan</div><div class="value">'+expired+'</div><div class="sub">yangilash kerak</div></div>';
+  const items=[
+    { ic:'🚀', lb:'Bot joylash', ds:'1 tarif = 1 bot', p:'upload' },
+    { ic:'🤖', lb:'Botlarim', ds:(u.bots||[]).length+' ta', p:'bots' },
+    { ic:'💰', lb:'Balans', ds:money(u.balance), p:'balance' },
+    { ic:'👤', lb:'Profil', ds:u.nick, p:'profile' },
+    { ic:'💬', lb:'Yordam', ds:'Admin bilan', p:'contact' },
+  ];
+  document.getElementById('main-menu').innerHTML = items.map(i=>
+    '<div class="menu-card" onclick="showPage(\''+i.p+'\')"><div class="ic">'+i.ic+'</div><div class="lb">'+i.lb+'</div><div class="ds">'+i.ds+'</div></div>'
+  ).join('');
+  const box=document.getElementById('dash-bots');
+  const bots=(u.bots||[]).slice().reverse().slice(0,3);
+  if(bots.length===0){
+    box.innerHTML='<div class="empty"><div class="ic">🤖</div><p>Hali botlar yo\'q.</p><button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="showPage(\'upload\')">Birinchi botni joylash</button></div>';
+  } else {
+    box.innerHTML='<div class="table-wrap"><table><thead><tr><th>Fayl</th><th>Tarif</th><th>Holat</th><th>Tugaydi</th></tr></thead><tbody>'+
+      bots.map(b=>'<tr class="clickable" onclick="showPage(\'bots\')"><td>'+esc(b.file)+'</td><td>'+esc(b.tariffName||b.plan||'—')+'</td><td>'+botBadge(b)+'</td><td>'+dateShort(b.expiresAt)+'</td></tr>').join('')+
+      '</tbody></table></div>';
+  }
+}
+
+// ============== MY BOTS ==============
+function renderBots(){
+  const u=user(); const box=document.getElementById('bots-box');
+  if(!(u.bots||[]).length){
+    box.innerHTML='<div class="empty"><div class="ic">🤖</div><p>Hali botlar yo\'q</p><p class="muted">"Bot joylash" sahifasida 1 ta tarif sotib olib, birinchi botingizni yarating.</p><button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="showPage(\'upload\')">Bot joylash →</button></div>';
+    return;
+  }
+  box.innerHTML='<div class="table-wrap"><table><thead><tr><th>Fayl</th><th>Tarif</th><th>Narx</th><th>Holat</th><th>Tugaydi</th><th>Amal</th></tr></thead><tbody>'+
+    (u.bots||[]).map((b,i)=>{
+      return '<tr><td><b>'+esc(b.file)+'</b></td><td>'+esc(b.tariffName||b.plan||'—')+'</td><td>'+(b.price||0).toLocaleString()+'</td><td>'+botBadge(b)+'</td><td class="mono">'+dateShort(b.expiresAt)+'</td>'+
+        '<td class="row-actions">'+
+          (b.status==='active'&&!isExpired(b) ? '<button class="btn btn-sm btn-warn" onclick="stopBot('+i+')">⏸ Stop</button>' : '')+
+          (b.status==='stopped'&&!isExpired(b) ? '<button class="btn btn-sm btn-success" onclick="startBot('+i+')">▶ Start</button>' : '')+
+          (b.status==='pending' ? '<span class="muted">⏳ Kutilmoqda</span>' : '')+
+          '<button class="btn btn-sm btn-danger" onclick="delBot('+i+')">🗑</button>'+
+        '</td></tr>';
+    }).join('')+
+    '</tbody></table></div>';
+}
+function stopBot(i){ const u=user(); u.bots[i].status='stopped'; save(); renderBots(); renderSidebar(); toast('Bot to\'xtatildi ⏸','ok'); }
+function startBot(i){ const u=user(); u.bots[i].status='active'; save(); renderBots(); renderSidebar(); toast('Bot ishga tushdi ▶','ok'); }
+function delBot(i){
+  if(!confirm('Botni o\'chirishni istaysizmi?')) return;
+  user().bots.splice(i,1); save(); renderBots(); renderSidebar(); toast('Bot o\'chirildi','ok');
+}
+
+// ============== UPLOAD (1 tarif = 1 bot) ==============
+let selectedTariff = null;
+function renderUpload(){
+  selectedTariff=null;
+  const t=activeTariffs();
+  const box=document.getElementById('upload-tariffs');
+  const formCard=document.getElementById('upload-form-card');
+  formCard.style.display='none';
+  document.getElementById('up-msg').innerHTML='';
+  document.getElementById('up-file').value='';
+  document.getElementById('up-promo').value='';
+  const u=user();
+  if(t.length===0){
+    box.innerHTML='<div class="empty"><div class="ic">📦</div><p style="font-weight:600;margin-bottom:6px">Tariflar mavjud emas</p><p class="muted">Admin hozircha hech qanday tarif yaratmagan. Tariflar paydo bo\'lgungacha bot yarata olmaysiz. Iltimos, admin bilan bog\'laning yoki kuting.</p><button class="btn btn-outline btn-sm" style="margin-top:14px" onclick="showPage(\'contact\')">💬 Admin bilan bog\'lanish</button></div>';
+    return;
+  }
+  box.innerHTML = '<p class="muted" style="margin-bottom:12px">💰 Balansingiz: <b style="color:var(--success2)">'+money(u.balance)+'</b> — tanlash uchun tarifni bosing</p>'+
+    t.map(x=>{
+      const cant = u.balance < x.price;
+      return '<div class="tariff-pick" onclick="selectTariff('+x.id+')"><div><div class="nm">'+esc(x.name)+'</div><div class="ds">'+x.days+' kunlik muddat'+(cant?' · ⚠ balans yetarli emas':'')+'</div></div><div class="pr">'+x.price.toLocaleString()+'</div></div>';
+    }).join('');
+}
+function selectTariff(id){
+  const t=state.tariffs.find(x=>x.id===id); if(!t) return;
+  selectedTariff=t;
+  document.querySelectorAll('.tariff-pick').forEach((el,idx)=>{
+    const tid = activeTariffs()[idx].id;
+    el.classList.toggle('selected', tid===id);
+  });
+  document.getElementById('upload-form-card').style.display='block';
+  const u=user();
+  const can=u.balance>=t.price;
+  document.getElementById('up-summary').innerHTML=
+    '<div class="srow"><span>Tarif:</span><b>'+esc(t.name)+'</b></div>'+
+    '<div class="srow"><span>Muddat:</span><b>'+t.days+' kun</b></div>'+
+    '<div class="srow"><span>Narx:</span><b style="color:var(--success2)">'+money(t.price)+'</b></div>'+
+    '<div class="srow"><span>Joriy balans:</span><b>'+money(u.balance)+'</b></div>'+
+    '<div class="srow total"><span>Yechilgandan so\'ng:</span><b style="color:'+(can?'var(--success2)':'var(--danger2)')+'">'+money(u.balance - t.price)+'</b></div>';
+  if(!can){
+    flash('up-msg','Balans yetarli emas. Kerak: '+money(t.price)+', sizda: '+money(u.balance)+'. Iltimos, avval balansni to\'ldiring.','err');
+  } else {
+    document.getElementById('up-msg').innerHTML='';
+  }
+}
+function doUpload(){
+  const u=user();
+  if(!selectedTariff){ toast('Avval tarif tanlang','err'); return; }
+  const file=document.getElementById('up-file').value.trim();
+  if(!file){ flash('up-msg','Bot fayl nomini yozing','err'); return; }
+  const t=selectedTariff;
+  if(u.balance < t.price){ flash('up-msg','Balans yetarli emas ('+money(t.price)+' kerak). Iltimos, balansni to\'ldiring.','err'); return; }
+  const promo=document.getElementById('up-promo').value.trim().toUpperCase();
+  let price=t.price; let discount=0;
+  if(promo==='YANGI20'){ discount=Math.round(price*0.2); price=t.price-discount; }
+  if(u.balance < price){ flash('up-msg','Balans yetarli emas ('+money(price)+' kerak)','err'); return; }
+  if(!confirm('TASDIQLASH\n\nTarif: '+t.name+' ('+t.days+' kun)\nBot fayli: '+file+'\nNarx: '+money(price)+(discount?' (chegirma '+money(discount)+')':'')+'\n\n⚠ Bu tarif FAQAT shu bitta bot uchun. Yangi bot uchun yana alohida tarif sotib olishingiz kerak.\n\nBalansdan '+money(price)+' yechildi. Davom etamizmi?')) return;
+  u.balance -= price;
+  state.earned = (state.earned||0) + price;
+  const now=new Date();
+  const exp=new Date(now.getTime() + t.days*86400000);
+  u.bots.push({ file, tariffId:t.id, tariffName:t.name, price, days:t.days, status:'pending', date:now.toLocaleString('uz-UZ'), created:now.toISOString(), expiresAt:exp.toISOString() });
+  save();
+  document.getElementById('up-file').value='';
+  document.getElementById('up-promo').value='';
+  // Toast (renderUpload tomonidan tozalanmaydi — 3.2s turadi)
+  toast('✅ Bot yaratildi! '+money(price)+' yechildi. Admin tasdiqlashini kuting. Keyingi bot uchun yana yangi tarif sotib oling.','ok');
+  document.getElementById('nav-bal').textContent=money(u.balance);
+  document.getElementById('nav-bal-pill').textContent='💰 '+money(u.balance);
+  renderSidebar();
+  renderUpload();
+}
+
+// ============== BALANCE ==============
+function renderBalance(){
+  const u=user();
+  document.getElementById('bal-val').textContent=money(u.balance);
+  document.getElementById('card-show').textContent=state.card;
+  document.getElementById('topup-msg').innerHTML='';
+  const hist=(u.topups||[]);
+  const box=document.getElementById('topup-history');
+  if(hist.length===0){ box.innerHTML='<div class="empty" style="padding:24px 10px"><p class="muted">To\'lovlar yo\'q.</p></div>'; return; }
+  box.innerHTML='<div class="table-wrap"><table><thead><tr><th>Summa</th><th>Holat</th><th>Sana</th></tr></thead><tbody>'+
+    hist.slice().reverse().map(t=>'<tr><td><b>'+money(t.amount)+'</b></td><td><span class="badge badge-'+(t.status==='approved'?'active':'pending')+'">'+(t.status==='approved'?'Tasdiqlandi':'Kutilmoqda')+'</span></td><td class="mono">'+dateShort(t.date)+'</td></tr>').join('')+
+    '</tbody></table></div>';
+}
+function doTopup(){
+  const u=user();
+  const amount=parseInt(document.getElementById('topup-amt').value,10);
+  if(!amount||amount<5000){ flash('topup-msg','Minimal 5 000 so\'m','err'); return; }
+  if(!u.topups) u.topups=[];
+  u.topups.push({ id:Date.now(), amount, status:'approved', date:new Date().toISOString() });
+  u.balance += amount;
+  save();
+  flash('topup-msg','+'+money(amount)+' qo\'shildi ✅','ok');
+  document.getElementById('topup-amt').value='';
+  document.getElementById('nav-bal').textContent=money(u.balance);
+  document.getElementById('nav-bal-pill').textContent='💰 '+money(u.balance);
+  renderBalance();
+}
+
+// ============== PROFILE ==============
+function renderProfile(){
+  const u=user();
+  document.getElementById('pf-avatar').textContent=initial(u.nick);
+  document.getElementById('pf-nick-h').textContent=u.nick;
+  document.getElementById('pf-role-badge').innerHTML=u.isAdmin?'<span class="badge badge-admin"><span class="badge-dot"></span>Admin</span>':'<span class="badge badge-user">Mijoz</span>';
+  document.getElementById('pf-nick').textContent=u.nick;
+  document.getElementById('pf-email').textContent=u.email||'—';
+  document.getElementById('pf-id').textContent=u.clientId;
+  document.getElementById('pf-bal').textContent=money(u.balance);
+  document.getElementById('pf-bots').textContent=(u.bots||[]).length+' ta';
+  document.getElementById('pf-joined').textContent=dateShort(u.joined);
+}
+
+// ============== CONTACT ==============
+function doContact(){
+  const u=user();
+  const text=document.getElementById('contact-text').value.trim();
+  if(!text){ flash('contact-msg','Xabar yozing','err'); return; }
+  if(!u.messages) u.messages=[];
+  u.messages.push({ from:'user', text, time:new Date().toLocaleString('uz-UZ') });
+  save();
+  document.getElementById('contact-text').value='';
+  flash('contact-msg','Xabar yuborildi ✅','ok');
+  renderContact();
+}
+function renderContact(){
+  const u=user(); const box=document.getElementById('contact-hist');
+  if(!(u.messages||[]).length){ box.innerHTML='<p class="muted">Tarix bo\'sh</p>'; return; }
+  box.innerHTML=u.messages.slice().reverse().map(m=>
+    '<div style="padding:10px 0;border-bottom:1px solid var(--border)"><small style="color:var(--muted)">'+(m.from==='user'?'Siz':'Admin')+' · '+esc(m.time)+'</small><div style="margin-top:4px">'+esc(m.text)+'</div></div>'
+  ).join('');
+}
+
+// ============== ADMIN: STATS ==============
+function renderAdminStats(){
+  const users=Object.values(state.users).filter(u=>!u.isAdmin);
+  const allBots=users.flatMap(u=>(u.bots||[]).map((b,i)=>Object.assign({},b,{nick:u.nick,idx:i})));
+  const pending=allBots.filter(b=>b.status==='pending').length;
+  const active=allBots.filter(b=>b.status==='active'&&!isExpired(b)).length;
+  document.getElementById('admin-stats').innerHTML=
+    '<div class="stat-card blue"><div class="stat-icon">👥</div><div class="label">Mijozlar</div><div class="value">'+users.length+'</div></div>'+
+    '<div class="stat-card purple"><div class="stat-icon">🤖</div><div class="label">Jami botlar</div><div class="value">'+allBots.length+'</div></div>'+
+    '<div class="stat-card green"><div class="stat-icon">🟢</div><div class="label">Faol botlar</div><div class="value">'+active+'</div></div>'+
+    '<div class="stat-card orange"><div class="stat-icon">⏳</div><div class="label">Kutilmoqda</div><div class="value">'+pending+'</div></div>'+
+    '<div class="stat-card blue"><div class="stat-icon">💰</div><div class="label">Daromad</div><div class="value">'+(state.earned||0).toLocaleString()+'</div><div class="sub">so\'m</div></div>'+
+    '<div class="stat-card green"><div class="stat-icon">💳</div><div class="label">Mijozlar balansi</div><div class="value">'+users.reduce((s,u)=>s+(u.balance||0),0).toLocaleString()+'</div><div class="sub">so\'m</div></div>'+
+    '<div class="stat-card orange"><div class="stat-icon">📦</div><div class="label">Tariflar</div><div class="value">'+(state.tariffs||[]).length+'</div><div class="sub">'+activeTariffs().length+' ta faol</div></div>';
+  const box=document.getElementById('admin-pending');
+  const pend=allBots.filter(b=>b.status==='pending');
+  if(pend.length===0){ box.innerHTML='<div class="empty" style="padding:24px 10px"><p class="muted">Kutilayotgan botlar yo\'q.</p></div>'; return; }
+  box.innerHTML='<div class="table-wrap"><table><thead><tr><th>Mijoz</th><th>Fayl</th><th>Tarif</th><th>Sana</th><th>Amal</th></tr></thead><tbody>'+
+    pend.map(b=>'<tr><td><b>'+esc(b.nick)+'</b></td><td>'+esc(b.file)+'</td><td>'+esc(b.tariffName||'—')+'</td><td class="mono">'+dateShort(b.created)+'</td><td><button class="btn btn-success btn-sm" onclick="approveBot(\''+esc(b.nick)+'\','+b.idx+')">✓ Tasdiqlash</button></td></tr>').join('')+
+    '</tbody></table></div>';
+}
+function approveBot(nick,idx){
+  if(state.users[nick]&&state.users[nick].bots[idx]){
+    state.users[nick].bots[idx].status='active';
+    save(); renderAdminStats(); renderSidebar();
+    toast('Bot tasdiqlandi va ishga tushdi ✅','ok');
+  }
+}
+
+// ============== ADMIN: CUSTOMERS ==============
+let custFilter='all';
+function setCustFilter(f){
+  custFilter=f;
+  document.querySelectorAll('#cust-chips .chip').forEach(c=>c.classList.toggle('active',c.dataset.f===f));
+  renderCustomers();
+}
+function renderCustomers(){
+  const users=Object.values(state.users).filter(u=>!u.isAdmin);
+  const qEl=document.getElementById('cust-search');
+  const q=(qEl?qEl.value:'').toLowerCase().trim();
+  let list=users;
+  if(q) list=list.filter(u=>(u.nick||'').toLowerCase().includes(q));
+  if(custFilter==='withbots') list=list.filter(u=>(u.bots||[]).length>0);
+  else if(custFilter==='nobots') list=list.filter(u=>!(u.bots||[]).length);
+  else if(custFilter==='active') list=list.filter(u=>(u.bots||[]).some(b=>b.status==='active'&&!isExpired(b)));
+  const cntEl=document.getElementById('cust-count'); if(cntEl) cntEl.textContent='Jami: '+list.length+' ta';
+  const box=document.getElementById('cust-list'); if(!box) return;
+  if(list.length===0){ box.innerHTML='<div class="empty"><div class="ic">👥</div><p>Mijozlar topilmadi.</p></div>'; return; }
+  box.innerHTML='<div class="table-wrap"><table><thead><tr><th>Mijoz</th><th>Rol</th><th>Balans</th><th>Botlar</th><th>A\'zo</th><th>Amal</th></tr></thead><tbody>'+
+    list.map(u=>{
+      const bc=(u.bots||[]).length;
+      return '<tr class="clickable" onclick="viewCustomer(\''+esc(u.nick)+'\')">'+
+        '<td><div class="flex" style="gap:10px"><div class="avatar" style="width:32px;height:32px;font-size:.8rem">'+initial(u.nick)+'</div><div><b>'+esc(u.nick)+'</b><div class="muted" style="font-size:.72rem;margin-top:2px">'+esc(u.email||'')+'</div></div></div></td>'+
+        '<td><span class="badge badge-user">Mijoz</span></td>'+
+        '<td><b>'+money(u.balance)+'</b></td>'+
+        '<td>'+(bc>0?'<span class="badge badge-active"><span class="badge-dot"></span>'+bc+' ta</span>':'<span class="muted">—</span>')+'</td>'+
+        '<td class="mono">'+dateShort(u.joined)+'</td>'+
+        '<td class="row-actions" onclick="event.stopPropagation()"><button class="btn btn-sm btn-outline" onclick="viewCustomer(\''+esc(u.nick)+'\')">👁</button><button class="btn btn-sm" onclick="editBalance(\''+esc(u.nick)+'\')">✎</button></td>'+
+      '</tr>';
+    }).join('')+
+    '</tbody></table></div>';
+}
+function viewCustomer(nick){
+  const u=state.users[nick]; if(!u) return;
+  const active=(u.bots||[]).filter(b=>b.status==='active'&&!isExpired(b)).length;
+  const pending=(u.bots||[]).filter(b=>b.status==='pending').length;
+  openGenericModal(
+    '<div class="modal-head"><h2>👤 '+esc(u.nick)+'</h2><button class="modal-close" onclick="closeGenericModal()">×</button></div>'+
+    '<div class="modal-body">'+
+      '<div class="flex" style="gap:14px;margin-bottom:18px"><div class="avatar" style="width:56px;height:56px;font-size:1.4rem">'+initial(u.nick)+'</div><div><h2 style="margin:0;font-size:1.2rem">'+esc(u.nick)+'</h2><div style="margin-top:4px"><span class="badge badge-user">Mijoz</span></div><div class="muted" style="margin-top:6px">ID: '+u.clientId+'</div></div></div>'+
+      '<div class="card" style="box-shadow:none;border:1px solid var(--border);margin:0;padding:18px"><h3>📊 Ma\'lumotlar</h3>'+
+        '<div class="info-row"><span class="k">Nick</span><span class="v">'+esc(u.nick)+'</span></div>'+
+        '<div class="info-row"><span class="k">Email</span><span class="v">'+esc(u.email||'—')+'</span></div>'+
+        '<div class="info-row"><span class="k">Mijoz ID</span><span class="v"><code>'+u.clientId+'</code></span></div>'+
+        '<div class="info-row"><span class="k">Balans</span><span class="v" style="color:var(--success2)">'+money(u.balance)+'</span></div>'+
+        '<div class="info-row"><span class="k">Jami botlar</span><span class="v">'+(u.bots||[]).length+' ta</span></div>'+
+        '<div class="info-row"><span class="k">Faol botlar</span><span class="v">'+active+' ta</span></div>'+
+        '<div class="info-row"><span class="k">Kutilmoqda</span><span class="v">'+pending+' ta</span></div>'+
+        '<div class="info-row"><span class="k">A\'zo bo\'lgan</span><span class="v">'+dateFull(u.joined)+'</span></div>'+
+      '</div>'+
+      ((u.bots||[]).length? '<div class="card" style="box-shadow:none;border:1px solid var(--border);margin-top:14px;padding:18px"><h3>🤖 Botlari</h3><div class="table-wrap"><table><thead><tr><th>Fayl</th><th>Tarif</th><th>Holat</th></tr></thead><tbody>'+
+        (u.bots||[]).map(b=>'<tr><td>'+esc(b.file)+'</td><td>'+esc(b.tariffName||b.plan||'—')+'</td><td>'+botBadge(b)+'</td></tr>').join('')+
+        '</tbody></table></div></div>' : '')+
+    '</div>'+
+    '<div class="modal-foot"><button class="btn btn-outline" onclick="closeGenericModal()">Yopish</button><button class="btn btn-primary" onclick="editBalance(\''+esc(u.nick)+'\')">✎ Balansni tahrirlash</button></div>'
+  );
+}
+function editBalance(nick){
+  const u=state.users[nick]; if(!u) return;
+  const v=prompt('Yangi balans (so\'m):', u.balance);
+  if(v===null) return;
+  const num=parseInt(v,10);
+  if(isNaN(num)||num<0){ toast('Noto\'g\'ri summa','err'); return; }
+  u.balance=num; save();
+  toast('Balans yangilandi ✅','ok');
+  closeGenericModal();
+  renderCustomers();
+  renderSidebar();
+}
+
+// ============== ADMIN: ALL BOTS ==============
+function renderAdminBots(){
+  const users=Object.values(state.users).filter(u=>!u.isAdmin);
+  const allBots=[];
+  users.forEach(u=>(u.bots||[]).forEach((b,i)=>allBots.push(Object.assign({},b,{nick:u.nick,idx:i}))));
+  const box=document.getElementById('admin-bots-box');
+  if(allBots.length===0){ box.innerHTML='<div class="empty"><div class="ic">🤖</div><p class="muted">Botlar yo\'q.</p></div>'; return; }
+  box.innerHTML='<div class="table-wrap"><table><thead><tr><th>Mijoz</th><th>Fayl</th><th>Tarif</th><th>Holat</th><th>Tugaydi</th><th>Amal</th></tr></thead><tbody>'+
+    allBots.map(b=>'<tr><td><b>'+esc(b.nick)+'</b></td><td>'+esc(b.file)+'</td><td>'+esc(b.tariffName||'—')+'</td><td>'+botBadge(b)+'</td><td class="mono">'+dateShort(b.expiresAt)+'</td><td class="row-actions">'+
+      (b.status==='pending'?'<button class="btn btn-success btn-sm" onclick="approveBot(\''+esc(b.nick)+'\','+b.idx+')">✓ Tasdiqlash</button>':'')+
+      (b.status==='active'&&!isExpired(b)?'<button class="btn btn-sm btn-warn" onclick="adminStopBot(\''+esc(b.nick)+'\','+b.idx+')">⏸ Stop</button>':'')+
+      (b.status==='stopped'&&!isExpired(b)?'<button class="btn btn-sm btn-success" onclick="adminStartBot(\''+esc(b.nick)+'\','+b.idx+')">▶ Start</button>':'')+
+    '</td></tr>').join('')+
+    '</tbody></table></div>';
+}
+function adminStopBot(nick,idx){ state.users[nick].bots[idx].status='stopped'; save(); renderAdminBots(); }
+function adminStartBot(nick,idx){ state.users[nick].bots[idx].status='active'; save(); renderAdminBots(); }
+
+// ============== ADMIN: TARIFFS ==============
+function renderTariffs(){
+  const list=state.tariffs||[];
+  const box=document.getElementById('tar-list');
+  document.getElementById('tar-msg').innerHTML='';
+  if(list.length===0){
+    box.innerHTML='<div class="empty" style="padding:30px 10px"><div class="ic">📦</div><p style="font-weight:600;margin-bottom:6px">Tariflar yo\'q</p><p class="muted">Tarif yaratmaguningizcha mijozlarga hech qanday tarif ko\'rinmaydi va bot yarata olmaydi.</p></div>';
+    return;
+  }
+  box.innerHTML='<div class="table-wrap"><table><thead><tr><th>Nomi</th><th>Narxi</th><th>Kun</th><th>Holat</th><th>Amal</th></tr></thead><tbody>'+
+    list.map(t=>'<tr><td><b>'+esc(t.name)+'</b></td><td>'+money(t.price)+'</td><td>'+t.days+'</td><td><span class="badge '+(t.active?'badge-active':'badge-stopped')+'">'+(t.active?'Faol':'O\'chirilgan')+'</span></td><td class="row-actions"><button class="btn btn-sm btn-outline" onclick="toggleTariff('+t.id+')">'+(t.active?'O\'chirish':'Yoqish')+'</button><button class="btn btn-sm btn-danger" onclick="delTariff('+t.id+')">🗑</button></td></tr>').join('')+
+    '</tbody></table></div>';
+}
+function addTariff(){
+  const name=document.getElementById('tar-name').value.trim();
+  const price=parseInt(document.getElementById('tar-price').value,10);
+  const days=parseInt(document.getElementById('tar-days').value,10);
+  if(!name){ flash('tar-msg','Nomi kerak','err'); return; }
+  if(!price||price<=0){ flash('tar-msg','Narx 0 dan katta bo\'lishi kerak','err'); return; }
+  if(!days||days<=0){ flash('tar-msg','Kun 0 dan katta bo\'lishi kerak','err'); return; }
+  if(!state.tariffs) state.tariffs=[];
+  state.tariffs.push({ id:Date.now(), name, price, days, active:true });
+  save();
+  document.getElementById('tar-name').value=''; document.getElementById('tar-price').value=''; document.getElementById('tar-days').value='';
+  flash('tar-msg','Tarif qo\'shildi ✅ Endi mijozlar uni ko\'ra oladi.','ok');
+  renderTariffs(); renderLandingPrices();
+  toast('Tarif qo\'shildi ✅','ok');
+}
+function toggleTariff(id){
+  const t=state.tariffs.find(x=>x.id===id); if(!t) return;
+  t.active=!t.active; save(); renderTariffs(); renderLandingPrices();
+  toast(t.active?'Tarif yoqildi ✅':'Tarif o\'chirildi', t.active?'ok':'');
+}
+function delTariff(id){
+  if(!confirm('Tarifni o\'chirishni istaysizmi?')) return;
+  state.tariffs=state.tariffs.filter(x=>x.id!==id); save(); renderTariffs(); renderLandingPrices();
+  toast('Tarif o\'chirildi','ok');
+}
+
+// ============== ADMIN: SETTINGS ==============
+function renderSettings(){ document.getElementById('ad-card').value=state.card||''; document.getElementById('ad-msg').innerHTML=''; }
+function saveCard(){
+  state.card=document.getElementById('ad-card').value.trim()||state.card; save();
+  flash('ad-msg','Saqlandi ✅','ok');
+  toast('Karta saqlandi ✅','ok');
+}
+
+// ============== GENERIC MODAL ==============
+function openGenericModal(html){
+  document.getElementById('modal-generic-inner').innerHTML=html;
+  document.getElementById('modal-generic').classList.add('open');
+}
+function closeGenericModal(){ document.getElementById('modal-generic').classList.remove('open'); document.getElementById('modal-generic-inner').innerHTML=''; }
+document.getElementById('modal-generic').addEventListener('click',e=>{ if(e.target.id==='modal-generic') closeGenericModal(); });
+
+// ============== INIT ==============
+document.getElementById('login-pass').addEventListener('keypress',e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('reg-pass2').addEventListener('keypress',e=>{ if(e.key==='Enter') doRegister(); });
+window.addEventListener('scroll',()=>{ const t=document.getElementById('topnav'); if(t) t.classList.toggle('scrolled', window.scrollY>20); });
+if(state.current && state.users && state.users[state.current]) enterApp();
+</script>
+</body>
+</html>

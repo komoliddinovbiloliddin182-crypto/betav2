@@ -1,0 +1,4 @@
+# Python sidecar for CortenBots (bot_runner.py) — actual Telegram polling.
+# The Node app (server.js) is the primary service and needs no Python deps.
+# Install only if you want bots to really run:  pip install -r requirements.txt
+aiogram>=3.4,<4
